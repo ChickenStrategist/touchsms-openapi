@@ -1,0 +1,1493 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "touchSMS V2 API",
+    "version": "2.0.0-draft",
+    "description": "OpenAPI spec derived from touchSMS V2 Postman collection.\nReplace fields marked TODO with exact values from your environment.\n"
+  },
+  "servers": [
+    {
+      "url": "https://api.touchsms.com.au",
+      "description": "Production"
+    },
+    {
+      "url": "https://{host}{basePath}",
+      "variables": {
+        "host": {
+          "default": "api.touchsms.com.au"
+        },
+        "basePath": {
+          "default": "/api/v2"
+        }
+      }
+    }
+  ],
+  "tags": [
+    {
+      "name": "Messages"
+    },
+    {
+      "name": "Contacts"
+    },
+    {
+      "name": "Optouts"
+    },
+    {
+      "name": "Opt Out Lists"
+    },
+    {
+      "name": "Account"
+    },
+    {
+      "name": "Inbounds"
+    },
+    {
+      "name": "Verify (OTP)"
+    },
+    {
+      "name": "Webhooks"
+    }
+  ],
+  "paths": {
+    "/api/v2/sms": {
+      "post": {
+        "tags": [
+          "Messages"
+        ],
+        "summary": "Send SMS / MMS",
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendSmsRequest"
+              },
+              "examples": {
+                "single": {
+                  "value": {
+                    "sender": "MyBiz",
+                    "messages": [
+                      {
+                        "to": "+61400000000",
+                        "body": "Your code is 123456"
+                      }
+                    ]
+                  }
+                },
+                "bulk": {
+                  "value": {
+                    "sender": "MyBiz",
+                    "schedule_at": "2025-08-11T10:00:00Z",
+                    "messages": [
+                      {
+                        "to": "+61400000001",
+                        "body": "Hi A"
+                      },
+                      {
+                        "to": "+61400000002",
+                        "body": "Hi B"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SendSmsAccepted"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Authentication failed"
+          },
+          "429": {
+            "description": "Rate limited"
+          }
+        },
+        "operationId": "messages_sendSms"
+      }
+    },
+    "/api/v2/sms/dry-run": {
+      "post": {
+        "tags": [
+          "Messages"
+        ],
+        "summary": "Send SMS / MMS (Dry)",
+        "description": "Validate a request without sending messages.",
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendSmsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Validation result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SendSmsDryRunResult"
+                }
+              }
+            }
+          }
+        },
+        "operationId": "messages_sendSmsDryRun"
+      }
+    },
+    "/api/v2/contacts": {
+      "get": {
+        "tags": [
+          "Contacts"
+        ],
+        "summary": "List Contacts",
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Free-text search"
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Contacts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedContacts"
+                }
+              }
+            }
+          }
+        },
+        "operationId": "contacts_listContacts"
+      },
+      "post": {
+        "tags": [
+          "Contacts"
+        ],
+        "summary": "Create Contact",
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContactCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Contact"
+                }
+              }
+            }
+          }
+        },
+        "operationId": "contacts_createContact"
+      }
+    },
+    "/api/v2/contacts/{contact_id}": {
+      "get": {
+        "tags": [
+          "Contacts"
+        ],
+        "summary": "Show Contact",
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ContactId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Contact",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Contact"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          }
+        },
+        "operationId": "contacts_getContact"
+      },
+      "put": {
+        "tags": [
+          "Contacts"
+        ],
+        "summary": "Update Contact",
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ContactId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContactUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Contact"
+                }
+              }
+            }
+          }
+        },
+        "operationId": "contacts_updateContact"
+      },
+      "delete": {
+        "tags": [
+          "Contacts"
+        ],
+        "summary": "Delete Contact",
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ContactId"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Deleted"
+          }
+        },
+        "operationId": "contacts_deleteContact"
+      }
+    },
+    "/api/v2/optouts": {
+      "get": {
+        "tags": [
+          "Optouts"
+        ],
+        "summary": "List Optouts",
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Optouts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedOptouts"
+                }
+              }
+            }
+          }
+        },
+        "operationId": "optouts_listOptouts"
+      },
+      "post": {
+        "tags": [
+          "Optouts"
+        ],
+        "summary": "Create Optout",
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OptoutCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Optout"
+                }
+              }
+            }
+          }
+        },
+        "operationId": "optouts_createOptout"
+      }
+    },
+    "/api/v2/optouts/{optout_id}": {
+      "get": {
+        "tags": [
+          "Optouts"
+        ],
+        "summary": "Show Optout",
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/OptoutId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Optout",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Optout"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          }
+        },
+        "operationId": "optouts_getOptout"
+      },
+      "delete": {
+        "tags": [
+          "Optouts"
+        ],
+        "summary": "Delete Optout",
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/OptoutId"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Deleted"
+          }
+        },
+        "operationId": "optouts_deleteOptout"
+      }
+    },
+    "/api/v2/optout-lists": {
+      "get": {
+        "tags": [
+          "Opt Out Lists"
+        ],
+        "summary": "List Opt Out Lists",
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OptoutList"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "optoutLists_list"
+      }
+    },
+    "/api/v2/optout-lists/{list_id}": {
+      "get": {
+        "tags": [
+          "Opt Out Lists"
+        ],
+        "summary": "Show Opt Out List",
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/OptoutListId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OptoutList"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found"
+          }
+        },
+        "operationId": "optoutLists_get"
+      }
+    },
+    "/api/v2/optout-lists/{list_id}/optouts": {
+      "get": {
+        "tags": [
+          "Opt Out Lists"
+        ],
+        "summary": "Show Opt Out List Optouts",
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/OptoutListId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Members",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Optout"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "optoutLists_getMembers"
+      }
+    },
+    "/api/v2/account": {
+      "get": {
+        "tags": [
+          "Account"
+        ],
+        "summary": "Get Account",
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Account info",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Account"
+                }
+              }
+            }
+          }
+        },
+        "operationId": "account_getAccount"
+      }
+    },
+    "/api/v2/account/sender-ids": {
+      "get": {
+        "tags": [
+          "Account"
+        ],
+        "summary": "Get Sender Ids",
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sender IDs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SenderId"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "account_getSenderIds"
+      }
+    },
+    "/api/v2/inbounds": {
+      "get": {
+        "tags": [
+          "Inbounds"
+        ],
+        "summary": "List / Poll Inbounds",
+        "description": "Retrieve inbound messages (polling). Use webhooks for push delivery.",
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "since_id",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Return messages after this ID (for incremental polling)"
+          },
+          {
+            "in": "query",
+            "name": "since",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "description": "Return messages received after timestamp"
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Inbounds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedInbounds"
+                }
+              }
+            }
+          }
+        },
+        "operationId": "inbounds_listInbounds"
+      }
+    },
+    "/api/v2/verify": {
+      "post": {
+        "tags": [
+          "Verify (OTP)"
+        ],
+        "summary": "Create Verification",
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerificationCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Verification created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Verification"
+                }
+              }
+            }
+          }
+        },
+        "operationId": "verify_create"
+      }
+    },
+    "/api/v2/verify/check": {
+      "post": {
+        "tags": [
+          "Verify (OTP)"
+        ],
+        "summary": "Check Verification",
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerificationCheck"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Check result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerificationCheckResult"
+                }
+              }
+            }
+          }
+        },
+        "operationId": "verify_check"
+      }
+    },
+    "/api/v2/verify/check-by-destination": {
+      "post": {
+        "tags": [
+          "Verify (OTP)"
+        ],
+        "summary": "Check Verification By Destination",
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "destination",
+                  "code"
+                ],
+                "properties": {
+                  "destination": {
+                    "type": "string",
+                    "example": "+61400000000"
+                  },
+                  "code": {
+                    "type": "string",
+                    "example": "123456"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Check result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerificationCheckResult"
+                }
+              }
+            }
+          }
+        },
+        "operationId": "verify_checkByDestination"
+      }
+    },
+    "/api/v2/verify/cancel": {
+      "post": {
+        "tags": [
+          "Verify (OTP)"
+        ],
+        "summary": "Cancel Verification",
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "verification_id"
+                ],
+                "properties": {
+                  "verification_id": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Cancelled"
+          }
+        },
+        "operationId": "verify_cancel"
+      }
+    },
+    "/api/v2/verify/cancel-by-destination": {
+      "post": {
+        "tags": [
+          "Verify (OTP)"
+        ],
+        "summary": "Cancel Verification By Destination",
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "destination"
+                ],
+                "properties": {
+                  "destination": {
+                    "type": "string",
+                    "example": "+61400000000"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Cancelled"
+          }
+        },
+        "operationId": "verify_cancelByDestination"
+      }
+    },
+    "/webhooks/dlr": {
+      "post": {
+        "tags": [
+          "Webhooks"
+        ],
+        "summary": "Delivery Receipt (example schema)",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeliveryReceipt"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Acknowledge"
+          }
+        },
+        "operationId": "webhooks_receiveDlr"
+      }
+    },
+    "/webhooks/inbound": {
+      "post": {
+        "tags": [
+          "Webhooks"
+        ],
+        "summary": "Inbound Message (example schema)",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InboundMessage"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Acknowledge"
+          }
+        },
+        "operationId": "webhooks_receiveInbound"
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "basicAuth": {
+        "type": "http",
+        "scheme": "basic",
+        "description": "Use your Token ID / Secret (or Access Token pairing) via HTTP Basic.\nUsername/password mapping may vary by account (TODO: confirm).\n"
+      }
+    },
+    "parameters": {
+      "ContactId": {
+        "name": "contact_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "OptoutId": {
+        "name": "optout_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "OptoutListId": {
+        "name": "list_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      }
+    },
+    "schemas": {
+      "SendSmsRequest": {
+        "type": "object",
+        "required": [
+          "messages"
+        ],
+        "properties": {
+          "sender": {
+            "type": "string",
+            "description": "Alphanumeric or approved number",
+            "example": "MyBiz"
+          },
+          "schedule_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "webhook_url": {
+            "type": "string",
+            "format": "uri",
+            "nullable": true
+          },
+          "short_links": {
+            "type": "boolean",
+            "default": false
+          },
+          "campaign": {
+            "type": "string",
+            "nullable": true
+          },
+          "messages": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 1000,
+            "items": {
+              "type": "object",
+              "required": [
+                "to",
+                "body"
+              ],
+              "properties": {
+                "to": {
+                  "type": "string",
+                  "example": "+61400000000"
+                },
+                "body": {
+                  "type": "string"
+                },
+                "media_urls": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "format": "uri"
+                  },
+                  "description": "For MMS (if enabled)"
+                },
+                "metadata": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            }
+          }
+        }
+      },
+      "SendSmsAccepted": {
+        "type": "object",
+        "properties": {
+          "batch_id": {
+            "type": "string"
+          },
+          "queued": {
+            "type": "integer"
+          },
+          "invalid": {
+            "type": "integer"
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "SendSmsDryRunResult": {
+        "type": "object",
+        "properties": {
+          "valid": {
+            "type": "boolean"
+          },
+          "issues": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "index": {
+                  "type": "integer"
+                },
+                "field": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "Contact": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "mobile": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "attributes": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      },
+      "ContactCreate": {
+        "type": "object",
+        "required": [
+          "mobile"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "mobile": {
+            "type": "string",
+            "example": "+61400000000"
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "attributes": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      },
+      "ContactUpdate": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ContactCreate"
+          }
+        ]
+      },
+      "PagedContacts": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer"
+          },
+          "page": {
+            "type": "integer"
+          },
+          "page_size": {
+            "type": "integer"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Contact"
+            }
+          }
+        }
+      },
+      "Optout": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "destination": {
+            "type": "string",
+            "example": "+61400000000"
+          },
+          "reason": {
+            "type": "string",
+            "nullable": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "OptoutCreate": {
+        "type": "object",
+        "required": [
+          "destination"
+        ],
+        "properties": {
+          "destination": {
+            "type": "string",
+            "example": "+61400000000"
+          },
+          "reason": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "PagedOptouts": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer"
+          },
+          "page": {
+            "type": "integer"
+          },
+          "page_size": {
+            "type": "integer"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Optout"
+            }
+          }
+        }
+      },
+      "OptoutList": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "count": {
+            "type": "integer"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Account": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "credits_remaining": {
+            "type": "number",
+            "format": "float"
+          },
+          "currency": {
+            "type": "string",
+            "example": "AUD"
+          },
+          "timezone": {
+            "type": "string"
+          }
+        }
+      },
+      "SenderId": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "ALPHANUMERIC",
+              "NUMERIC",
+              "SHORTCODE"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "pending",
+              "rejected"
+            ]
+          }
+        }
+      },
+      "InboundMessage": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "from": {
+            "type": "string"
+          },
+          "to": {
+            "type": "string"
+          },
+          "body": {
+            "type": "string"
+          },
+          "received_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      },
+      "PagedInbounds": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer"
+          },
+          "page": {
+            "type": "integer"
+          },
+          "page_size": {
+            "type": "integer"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InboundMessage"
+            }
+          }
+        }
+      },
+      "DeliveryReceipt": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Message ID"
+          },
+          "to": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "sending",
+              "sent",
+              "delivered",
+              "failed",
+              "rejected",
+              "undeliverable"
+            ]
+          },
+          "error_code": {
+            "type": "string",
+            "nullable": true
+          },
+          "error_message": {
+            "type": "string",
+            "nullable": true
+          },
+          "submitted_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "delivered_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      },
+      "VerificationCreate": {
+        "type": "object",
+        "required": [
+          "destination"
+        ],
+        "properties": {
+          "destination": {
+            "type": "string",
+            "example": "+61400000000"
+          },
+          "channel": {
+            "type": "string",
+            "enum": [
+              "sms"
+            ],
+            "default": "sms"
+          },
+          "code_length": {
+            "type": "integer",
+            "minimum": 4,
+            "maximum": 10,
+            "default": 6
+          },
+          "ttl_seconds": {
+            "type": "integer",
+            "default": 300
+          },
+          "template": {
+            "type": "string",
+            "example": "Your code is {code}"
+          },
+          "sender": {
+            "type": "string",
+            "nullable": true
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      },
+      "Verification": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "destination": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "delivered",
+              "expired",
+              "cancelled",
+              "verified"
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "VerificationCheck": {
+        "type": "object",
+        "required": [
+          "verification_id",
+          "code"
+        ],
+        "properties": {
+          "verification_id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          }
+        }
+      },
+      "VerificationCheckResult": {
+        "type": "object",
+        "properties": {
+          "valid": {
+            "type": "boolean"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "verified",
+              "invalid",
+              "expired"
+            ]
+          },
+          "attempts_remaining": {
+            "type": "integer"
+          }
+        }
+      }
+    }
+  }
+}
